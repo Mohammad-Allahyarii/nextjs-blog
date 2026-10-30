@@ -1,26 +1,234 @@
 @import "tailwindcss";
 
+/* Dark mode via class (next-themes: attribute="class") */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   Design tokens — Curatorial Persian Editorial
+   Light = from DESIGN.md. Dark = derived (DESIGN.md does not define it).
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Canvas & surfaces */
+  --background: #fafafa;
+  --surface: #ffffff;
+  --surface-muted: #f4f4f5;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8; /* hover border */
+
+  /* Ink */
+  --foreground: #18181b;
+  --muted-foreground: #52525b;
+  --subtle-foreground: #71717a;
+
+  /* Primary (Rule of One: one primary action per viewport) */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft: #eef2ff;
+  --primary-soft-foreground: #4f46e5; /* text on soft fill (active chips) */
+  --primary-ring: rgba(79, 70, 229, 0.2);
+  --on-primary: #ffffff;
+
+  /* System indicators */
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+
+  /* Elevation */
+  --shadow-whisper: 0 1px 2px rgba(24, 24, 27, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(24, 24, 27, 0.06);
+  --shadow-floating: 0 4px 16px rgba(24, 24, 27, 0.08);
+  --overlay: rgba(24, 24, 27, 0.2);
+
+  /* Layout */
+  --gutter: 2rem;
+  --margin: 2rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@media (max-width: 767px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --gutter: 1.25rem;
+    --margin: 1.25rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.dark {
+  --background: #09090b;
+  --surface: #18181b;
+  --surface-muted: #27272a;
+  --border: #3f3f46;
+  --border-strong: #52525b;
+
+  --foreground: #fafafa;
+  --muted-foreground: #a1a1aa;
+  --subtle-foreground: #71717a;
+
+  --primary: #4f46e5;
+  --primary-hover: #6366f1; /* lighter on hover in dark */
+  --primary-soft: rgba(99, 102, 241, 0.16);
+  --primary-soft-foreground: #a5b4fc;
+  --primary-ring: rgba(165, 180, 252, 0.3);
+  --on-primary: #ffffff;
+
+  --success: #4ade80;
+  --success-soft: rgba(34, 197, 94, 0.16);
+  --warning: #fbbf24;
+  --warning-soft: rgba(245, 158, 11, 0.16);
+  --danger: #f87171;
+  --danger-soft: rgba(239, 68, 68, 0.16);
+
+  --shadow-whisper: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-floating: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   Tailwind v4 theme mapping
+   `inline` makes utilities reference the vars, so .dark switches them.
+   Usage: bg-background, bg-surface, text-foreground, border-border,
+          bg-primary hover:bg-primary-hover, rounded-card, shadow-whisper ...
+   ========================================================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+  --color-primary-ring: var(--primary-ring);
+  --color-on-primary: var(--on-primary);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --shadow-whisper: var(--shadow-whisper);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-floating: var(--shadow-floating);
+}
+
+/* Static tokens (not theme-dependent) */
+@theme {
+  /* Font — load Vazirmatn with next/font and expose as --font-vazirmatn */
+  --font-sans: var(--font-vazirmatn), Vazirmatn, system-ui, sans-serif;
+
+  /* Radii */
+  --radius-control: 0.625rem; /* 10px: buttons, inputs */
+  --radius-card: 0.875rem; /* 14px: cards, modals, media */
+  --radius-chip: 9999px; /* pills, tags, avatars */
+
+  /* Containers: max-w-canvas / max-w-editorial */
+  --container-canvas: 1220px;
+  --container-editorial: 680px;
+
+  /* Type scale (Persian: line-height ~1.4 headings, 1.8 body) */
+  --text-headline-xl: 2.5rem;
+  --text-headline-xl--line-height: 1.4;
+  --text-headline-xl--font-weight: 800;
+
+  --text-headline-xl-mobile: 1.75rem;
+  --text-headline-xl-mobile--line-height: 1.43;
+  --text-headline-xl-mobile--font-weight: 800;
+
+  --text-headline-lg: 2rem;
+  --text-headline-lg--line-height: 1.375;
+  --text-headline-lg--font-weight: 700;
+
+  --text-headline-lg-mobile: 1.5rem;
+  --text-headline-lg-mobile--line-height: 1.42;
+  --text-headline-lg-mobile--font-weight: 700;
+
+  --text-headline-md: 1.5rem;
+  --text-headline-md--line-height: 1.42;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-sm: 1.25rem;
+  --text-headline-sm--line-height: 1.4;
+  --text-headline-sm--font-weight: 600;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.8;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.8;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.8;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-lg: 0.9375rem;
+  --text-label-lg--line-height: 1.47;
+  --text-label-lg--font-weight: 500;
+
+  --text-label-md: 0.8125rem;
+  --text-label-md--line-height: 1.38;
+  --text-label-md--font-weight: 500;
+
+  --text-label-sm: 0.6875rem;
+  --text-label-sm--line-height: 1.45;
+  --text-label-sm--font-weight: 500;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  html {
+    background-color: var(--background);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.8;
+    letter-spacing: 0; /* tracking breaks Perso-Arabic ligatures */
+    font-feature-settings: "ss01"; /* Persian numerals in Vazirmatn */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* No italics / uppercase in Persian */
+  em,
+  i {
+    font-style: normal;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
+
+  ::placeholder {
+    color: var(--subtle-foreground);
+  }
+}
+
+/* Optional helper: the focus ring from the Inputs spec */
+@utility focus-ring {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
 }
