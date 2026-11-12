@@ -2,7 +2,6 @@ import { config } from 'dotenv'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from '../../generated/prisma/client'
 
-// وقتی این فایل بیرون از Next اجرا می‌شود (مثل CLI بتر اوث)، .env.local خودکار لود نمی‌شود
 config({ path: '.env.local' })
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
