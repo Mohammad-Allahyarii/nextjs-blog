@@ -15,11 +15,13 @@
   "dependencies": {
     "@prisma/adapter-neon": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "@vercel/functions": "^3.10.6",
     "better-auth": "^1.7.14",
     "dotenv": "^18.0.9",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "resend": "^6.37.0",
     "server-only": "^0.0.1"
   },
   "devDependencies": {
