@@ -1,0 +1,312 @@
+@import "tailwindcss";
+
+/* Dark mode via class (next-themes: attribute="class") */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   Design tokens — source of truth: DESIGN.md
+   Anything marked (derived) is NOT defined in DESIGN.md. Decide it, then
+   write it back into DESIGN.md so the two files never drift again.
+   Never use raw hex in components; use only the token utilities.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Canvas & surfaces */
+  --background: #fafafa;
+  --surface: #ffffff;
+  --surface-muted: #f4f4f5;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8; /* card hover border */
+
+  /* Ink */
+  --foreground: #18181b;
+  --muted-foreground: #52525b;
+  --subtle-foreground: #71717a;
+
+  /* Primary (Single Accent Rule: one primary element per viewport) */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft: #eef2ff;
+  --primary-soft-foreground: #4f46e5; /* text on primary-soft (topic chips) */
+  --on-primary: #ffffff;
+
+  /* Status */
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+
+  /* Cards */
+  --card-shadow: 0 1px 2px rgba(24, 24, 27, 0.04);
+  --card-shadow-hover: 0 8px 24px rgba(24, 24, 27, 0.08);
+
+  /* Layout (responsive) — mobile first */
+  --page-gutter-x: 1.25rem; /* 20 */
+  --section-y: 4.5rem; /* 72 */
+  --section-y-article: 4rem; /* 64 */
+  --section-y-dashboard: 1.5rem; /* 24 */
+  --grid-gap: 1.5rem; /* 24 */
+  --card-padding: 1.25rem; /* 20 */
+  --featured-card-padding: 2rem; /* 32 */
+  --hero-padding-y: 3.5rem; /* 56 */
+
+  /* Motion */
+  --motion-fast: 150ms ease-out; /* hover, focus, click */
+  --motion-base: 250ms ease-out; /* lift, zoom, expand */
+
+  /* Dashboard navbar — exact colors measured from the Stitch screen.
+     They differ from the DESIGN.md palette (esp. avatar #3525cd vs primary
+     #4f46e5). Decide, then update DESIGN.md or change these values. */
+  --navbar-background: #fbf8fc;
+  --navbar-foreground: #464555; /* icons */
+  --chip-background: #f0edf1;
+  --chip-foreground: #5e5e67;
+  --avatar-background: #3525cd;
+  --avatar-foreground: #ffffff; /* (estimated) */
+}
+
+/* Tablet: only the gutter has its own value (28) in DESIGN.md */
+@media (min-width: 768px) {
+  :root {
+    --page-gutter-x: 1.75rem; /* 28 */
+    --section-y: 7.5rem; /* 120 */
+    --section-y-article: 6rem; /* 96 */
+    --section-y-dashboard: 2rem; /* 32 */
+    --grid-gap: 2rem; /* 32 */
+    --card-padding: 1.5rem; /* 24 */
+    --hero-padding-y: 6rem; /* 96 */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --page-gutter-x: 2rem; /* 32 */
+  }
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Values from DESIGN.md (dark overrides) */
+  --background: #0b0b0f;
+  --surface: #141419;
+  --surface-muted: #1c1c23;
+  --border: #2a2a33;
+  --border-strong: #3f3f46;
+
+  --foreground: #f4f4f5;
+  --muted-foreground: #a1a1aa;
+  --subtle-foreground: #8b8b96;
+
+  --primary: #818cf8;
+  --primary-hover: #a5b4fc;
+  --primary-soft: #1e1b4b;
+  --on-primary: #0b0b0f;
+  --primary-soft-foreground: #a5b4fc; /* (derived) text on primary-soft */
+
+  /* (derived) DESIGN.md has no dark status colors */
+  --success: #4ade80;
+  --success-soft: rgba(34, 197, 94, 0.16);
+  --warning: #fbbf24;
+  --warning-soft: rgba(245, 158, 11, 0.16);
+  --danger: #f87171;
+  --danger-soft: rgba(239, 68, 68, 0.16);
+
+  --card-shadow: 0 0 #0000; /* not "none": it would break Tailwind's shadow/ring composition */
+  --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  /* (derived) navbar in dark: reuse the dark tokens from DESIGN.md */
+  --navbar-background: var(--background);
+  --navbar-foreground: var(--muted-foreground);
+  --chip-background: var(--surface-muted);
+  --chip-foreground: var(--muted-foreground);
+  --avatar-background: var(--primary);
+  --avatar-foreground: var(--on-primary);
+}
+
+/* ==========================================================================
+   Tailwind v4 theme mapping
+   `inline` makes utilities reference the vars, so .dark switches them.
+   Runtime var names differ from theme names on purpose (no self-reference).
+   ========================================================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+  --color-on-primary: var(--on-primary);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --shadow-card: var(--card-shadow);
+  --shadow-card-hover: var(--card-shadow-hover);
+
+  /* Responsive layout tokens -> py-section, gap-grid, p-card, px-gutter ... */
+  --spacing-gutter: var(--page-gutter-x);
+  --spacing-section: var(--section-y);
+  --spacing-section-article: var(--section-y-article);
+  --spacing-section-dashboard: var(--section-y-dashboard);
+  --spacing-grid: var(--grid-gap);
+  --spacing-card: var(--card-padding);
+  --spacing-featured: var(--featured-card-padding);
+  --spacing-hero: var(--hero-padding-y);
+
+  /* Navbar: bg-navbar, text-navbar-foreground, bg-chip, bg-avatar ... */
+  --color-navbar: var(--navbar-background);
+  --color-navbar-foreground: var(--navbar-foreground);
+  --color-chip: var(--chip-background);
+  --color-chip-foreground: var(--chip-foreground);
+  --color-avatar: var(--avatar-background);
+  --color-avatar-foreground: var(--avatar-foreground);
+}
+
+/* Static tokens (not theme-dependent) */
+@theme {
+  /* Font: one token, swappable. Load Vazirmatn with next/font and expose
+     it as --font-vazirmatn. */
+  --font-sans: var(--font-vazirmatn), "Vazirmatn", -apple-system,
+    BlinkMacSystemFont, sans-serif;
+
+  /* Radii */
+  --radius-control: 0.625rem; /* 10: buttons, inputs */
+  --radius-card: 0.875rem; /* 14: cards, surfaces, images */
+  --radius-chip: 9999px; /* pills, avatars, tags */
+
+  /* Containers: max-w-canvas / max-w-reading / max-w-auth */
+  --container-canvas: 1220px;
+  --container-reading: 720px;
+  --container-auth: 420px;
+
+  /* Fixed widths: w-sidebar */
+  --spacing-sidebar: 15.5rem; /* 248 */
+
+  /* Type scale (DESIGN.md §3). Headings 1.4, body 1.8, reading column 1.95.
+     DESIGN.md gives no mobile sizes: scale down with breakpoints, e.g.
+     text-headline-lg md:text-display */
+  --text-label: 0.75rem; /* 12 / 500: labels, badges, topic chips */
+  --text-label--line-height: 1.8;
+  --text-label--font-weight: 500;
+
+  --text-body-sm: 0.875rem; /* 14 / 400-500: meta, helper text */
+  --text-body-sm--line-height: 1.8;
+  --text-body-sm--font-weight: 400;
+
+  --text-body-md: 1rem; /* 16 / 400-500: inputs, buttons, nav */
+  --text-body-md--line-height: 1.8;
+  --text-body-md--font-weight: 400;
+
+  --text-body-lg: 1.125rem; /* 18 / 400: article body */
+  --text-body-lg--line-height: 1.95;
+  --text-body-lg--font-weight: 400;
+
+  --text-headline-sm: 1.25rem; /* 20 / 700: post card title */
+  --text-headline-sm--line-height: 1.4;
+  --text-headline-sm--font-weight: 700;
+
+  --text-headline-md: 1.5rem; /* 24 / 700: section titles (H3) */
+  --text-headline-md--line-height: 1.4;
+  --text-headline-md--font-weight: 700;
+
+  --text-headline-lg: 1.875rem; /* 30 / 700: article titles (H2) */
+  --text-headline-lg--line-height: 1.4;
+  --text-headline-lg--font-weight: 700;
+
+  --text-headline-xl: 2.25rem; /* 36 / 700: tablet titles, dashboard headers */
+  --text-headline-xl--line-height: 1.4;
+  --text-headline-xl--font-weight: 700;
+
+  --text-display: 3rem; /* 48 / 700: desktop hero */
+  --text-display--line-height: 1.4;
+  --text-display--font-weight: 700;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  html {
+    background-color: var(--background);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.8;
+    letter-spacing: 0; /* tracking breaks Persian letter joining */
+    font-feature-settings: "ss01", "ss02"; /* Persian digits (DESIGN.md §3) */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* No italics / uppercase for Persian */
+  em,
+  i {
+    font-style: normal;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
+
+  /* Code blocks stay LTR inside Persian text */
+  pre {
+    direction: ltr;
+    text-align: left;
+  }
+
+  ::placeholder {
+    color: var(--subtle-foreground);
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+/* Inputs & interactive: 2px primary ring, 2px offset (DESIGN.md §6) */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Error state: red border + soft red ring */
+@utility focus-ring-error {
+  border-color: var(--danger);
+  &:focus-visible {
+    outline: 2px solid var(--danger-soft);
+    outline-offset: 2px;
+  }
+}
+
+/* ==========================================================================
+   Stitch-reconciled colors go here, after mapping each to an existing token
+   or adding a new semantic token (with its .dark counterpart).
+   ========================================================================== */
