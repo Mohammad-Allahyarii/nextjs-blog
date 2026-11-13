@@ -1,10 +1,9 @@
 import { Suspense } from "react";
-import NavList from "@/src/components/dahsboard/layout/nav-list";
-import UserCard from "@/src/components/dahsboard/layout/user-card";
 import { BLOG_NAME } from "@/src/lib/constants/initial.constants";
 import { getCurrentUser, getSession, requireUser } from "@/src/lib/dal";
 import { adminOrUserRole } from "@/src/lib/utils/user.utils";
-import { redirect } from "next/navigation";
+import NavList from "@/src/components/dashboard/layout/nav-list";
+import UserCard from "@/src/components/dashboard/layout/user-card";
 
 async function NavListWithRole() {
   const userRole = await adminOrUserRole();
