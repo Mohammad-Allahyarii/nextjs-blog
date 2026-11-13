@@ -1,4 +1,4 @@
-import IconButton from '@/src/components/dahsboard/layout/icon-button'
+import IconButton from '@/src/components/dashboard/layout/icon-button';
 import { Role } from '@/src/lib/dal';
 import { roleLabels } from '@/src/lib/types/user.types'
 
