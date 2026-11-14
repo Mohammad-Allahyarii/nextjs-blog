@@ -8,6 +8,12 @@
    Anything marked (derived) is NOT defined in DESIGN.md. Decide it, then
    write it back into DESIGN.md so the two files never drift again.
    Never use raw hex in components; use only the token utilities.
+
+   Primary = Teal. Palette steps (Tailwind teal):
+     light: 700 base · 800 hover · 100 soft · 800 soft-foreground
+     dark : 400 base · 300 hover · 14% tint soft · 300 soft-foreground
+   Contrast (WCAG, computed): on-primary/primary 5.47 light, 10.55 dark;
+   primary on background 5.24 light, 10.55 dark. All >= 4.5.
    ========================================================================== */
 
 :root {
@@ -25,11 +31,11 @@
   --muted-foreground: #52525b;
   --subtle-foreground: #71717a;
 
-  /* Primary (Single Accent Rule: one primary element per viewport) */
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-soft: #eef2ff;
-  --primary-soft-foreground: #4f46e5; /* text on primary-soft (topic chips) */
+  /* Primary — teal (Single Accent Rule: one primary element per viewport) */
+  --primary: #0f766e; /* teal-700 */
+  --primary-hover: #115e59; /* teal-800 */
+  --primary-soft: #ccfbf1; /* teal-100: topic chips, soft highlights */
+  --primary-soft-foreground: #115e59; /* teal-800: text on primary-soft */
   --on-primary: #ffffff;
 
   /* Status */
@@ -54,19 +60,19 @@
   --featured-card-padding: 2rem; /* 32 */
   --hero-padding-y: 3.5rem; /* 56 */
 
-  /* Motion */
+  /* Motion (use via the motion-fast / motion-base utilities below) */
   --motion-fast: 150ms ease-out; /* hover, focus, click */
   --motion-base: 250ms ease-out; /* lift, zoom, expand */
 
-  /* Dashboard navbar — exact colors measured from the Stitch screen.
-     They differ from the DESIGN.md palette (esp. avatar #3525cd vs primary
-     #4f46e5). Decide, then update DESIGN.md or change these values. */
-  --navbar-background: #fbf8fc;
-  --navbar-foreground: #464555; /* icons */
-  --chip-background: #f0edf1;
-  --chip-foreground: #5e5e67;
-  --avatar-background: #3525cd;
-  --avatar-foreground: #ffffff; /* (estimated) */
+  /* Dashboard navbar — DECISION: all tokens now point at the main palette.
+     The Stitch navbar (#fbf8fc) and avatar (#3525cd) were purple-tinted and
+     clash with teal. Write this decision back into DESIGN.md. */
+  --navbar-background: var(--background);
+  --navbar-foreground: var(--muted-foreground); /* icons */
+  --chip-background: var(--surface-muted);
+  --chip-foreground: var(--muted-foreground);
+  --avatar-background: var(--primary);
+  --avatar-foreground: var(--on-primary);
 }
 
 /* Tablet: only the gutter has its own value (28) in DESIGN.md */
@@ -102,11 +108,12 @@
   --muted-foreground: #a1a1aa;
   --subtle-foreground: #8b8b96;
 
-  --primary: #818cf8;
-  --primary-hover: #a5b4fc;
-  --primary-soft: #1e1b4b;
+  /* Primary — teal (derived: update DESIGN.md) */
+  --primary: #2dd4bf; /* teal-400 */
+  --primary-hover: #5eead4; /* teal-300 */
+  --primary-soft: rgba(45, 212, 191, 0.14); /* translucent: works on any surface */
+  --primary-soft-foreground: #5eead4; /* teal-300 */
   --on-primary: #0b0b0f;
-  --primary-soft-foreground: #a5b4fc; /* (derived) text on primary-soft */
 
   /* (derived) DESIGN.md has no dark status colors */
   --success: #4ade80;
@@ -119,7 +126,9 @@
   --card-shadow: 0 0 #0000; /* not "none": it would break Tailwind's shadow/ring composition */
   --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
 
-  /* (derived) navbar in dark: reuse the dark tokens from DESIGN.md */
+  /* Re-declared here on purpose: var() aliases are resolved where they are
+     declared, so they must be repeated if .dark is ever applied to a
+     sub-tree instead of <html>. */
   --navbar-background: var(--background);
   --navbar-foreground: var(--muted-foreground);
   --chip-background: var(--surface-muted);
@@ -183,8 +192,10 @@
 /* Static tokens (not theme-dependent) */
 @theme {
   /* Font: one token, swappable. Load Vazirmatn with next/font and expose
-     it as --font-vazirmatn. */
-  --font-sans: var(--font-vazirmatn), "Vazirmatn", -apple-system,
+     it as --font-vazirmatn.
+     IMPORTANT: put `vazirmatn.variable` on <html>, not <body>. This token
+     is resolved on :root, which is <html>. */
+  --font-sans: var(--font-vazirmatn), "Vazirmatn", Tahoma, -apple-system,
     BlinkMacSystemFont, sans-serif;
 
   /* Radii */
@@ -245,6 +256,14 @@
    ========================================================================== */
 
 @layer base {
+  /* Tailwind v4 defaults borders to currentColor. Restore the token so a
+     bare `border` utility uses --border. */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
   html {
     background-color: var(--background);
   }
@@ -258,6 +277,13 @@
     letter-spacing: 0; /* tracking breaks Persian letter joining */
     font-feature-settings: "ss01", "ss02"; /* Persian digits (DESIGN.md §3) */
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Tailwind v4 buttons keep the default arrow cursor */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 
   /* No italics / uppercase for Persian */
@@ -272,16 +298,51 @@
   h4 {
     line-height: 1.4;
     letter-spacing: 0;
+    text-wrap: balance;
   }
 
-  /* Code blocks stay LTR inside Persian text */
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Code stays LTR inside Persian text */
   pre {
     direction: ltr;
     text-align: left;
   }
 
+  code,
+  kbd,
+  samp {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
   ::placeholder {
     color: var(--subtle-foreground);
+  }
+
+  ::selection {
+    background-color: var(--primary-soft);
+    color: var(--primary-soft-foreground);
+  }
+
+  /* Smooth anchor scrolling, only for people who have not opted out */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -304,6 +365,37 @@
     outline: 2px solid var(--danger-soft);
     outline-offset: 2px;
   }
+}
+
+/* Motion tokens as utilities: hover/focus/click and lift/zoom/expand */
+@utility motion-fast {
+  transition:
+    color var(--motion-fast),
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast),
+    opacity var(--motion-fast),
+    transform var(--motion-fast);
+}
+
+@utility motion-base {
+  transition:
+    color var(--motion-base),
+    background-color var(--motion-base),
+    border-color var(--motion-base),
+    box-shadow var(--motion-base),
+    opacity var(--motion-base),
+    transform var(--motion-base);
+}
+
+/* Soft teal glow for hero sections (use on a relative section). Mixes the
+   current primary, so it follows light/dark automatically. */
+@utility bg-hero-glow {
+  background-image: radial-gradient(
+    60% 50% at 50% 0%,
+    color-mix(in srgb, var(--primary) 14%, transparent),
+    transparent 70%
+  );
 }
 
 /* ==========================================================================
