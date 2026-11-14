@@ -17,6 +17,14 @@ export const auth = betterAuth({
     },
   },
 
+  rateLimit: {
+    storage: "database",
+    customRules: {
+      "/email-otp/send-verification-otp": { window: 60, max: 3 },
+      "/sign-in/email-otp": { window: 60, max: 5 },
+    },
+  },
+
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -32,6 +40,7 @@ export const auth = betterAuth({
     accountLinking: {
       enabled: true,
       trustedProviders: ["google"],
+      updateUserInfoOnLink: true,
     },
   },
 
