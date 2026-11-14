@@ -47,3 +47,5 @@ src/generated/
 .agents/
 .claude/
 .windsurf/
+
+/src/app/test
