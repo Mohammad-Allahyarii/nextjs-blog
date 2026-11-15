@@ -49,3 +49,5 @@ src/generated/
 .windsurf/
 
 /src/app/test
+
+/ui-pages
