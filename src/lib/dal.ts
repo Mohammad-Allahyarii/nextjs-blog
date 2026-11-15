@@ -36,14 +36,14 @@ export async function isAdmin() {
 
 export async function requireAdmin() {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/auth");
   if (toRole(session.user.role) !== "admin") redirect("/");
   return session;
 }
 
 export async function requireUser() {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/auth");
   if (!session.user.firstName || !session.user.lastName) redirect("/onboarding");
   return session.user;
 }
