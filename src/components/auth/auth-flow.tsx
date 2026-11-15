@@ -1,62 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { BLOG_NAME } from "@/src/lib/constants/initial.constants";
-import type { AuthStep } from "@/src/lib/types/auth.types";
+import { initialAuthFormState } from "@/src/lib/types/auth.types";
+import type { AuthFormState, AuthStep } from "@/src/lib/types/auth.types";
+import { requestOtpAction, verifyOtpAction } from "@/src/app/auth/actions";
 import AuthCard from "@/src/components/auth/auth-card";
 import EmailStep from "@/src/components/auth/email-step";
 import OtpStep from "@/src/components/auth/otp-step";
+import FormError from "@/src/components/auth/form-error";
 
 type AuthFlowProps = {
-  onEmailSubmit?: (email: string) => void;
-  onOtpSubmit?: (code: string) => void;
-  onBack?: () => void;
+  onGoogleSignIn?: () => void;
   onResend?: () => void;
-  onGithubSignIn?: () => void;
-  isLoading?: boolean;
-  errorMessage?: string;
   signupHref?: string;
 };
 
 export default function AuthFlow({
-  onEmailSubmit,
-  onOtpSubmit,
-  onBack,
+  onGoogleSignIn,
   onResend,
-  onGithubSignIn,
-  isLoading = false,
-  errorMessage,
   signupHref = "/signup",
 }: AuthFlowProps) {
-  // Placeholder step switching for UI preview only. Replace with real logic.
-  const [step, setStep] = useState<AuthStep>("email");
+  const [emailState, submitEmail, isEmailPending] = useActionState(
+    requestOtpAction,
+    initialAuthFormState,
+  );
+  const [otpState, submitOtp, isOtpPending] = useActionState(
+    verifyOtpAction,
+    initialAuthFormState,
+  );
+  const [code, setCode] = useState("");
+  // Holds the exact result the user backed out of: a newer result wins again,
+  // so no effect is needed to move between steps.
+  const [dismissedEmailState, setDismissedEmailState] =
+    useState<AuthFormState | null>(null);
 
-  function handleEmailSubmit(email: string) {
-    // TODO(logic): connect email submit here
-    onEmailSubmit?.(email);
-    setStep("otp");
-  }
-
-  function handleOtpSubmit(code: string) {
-    // TODO(logic): connect OTP submit here
-    onOtpSubmit?.(code);
-  }
+  const step: AuthStep =
+    emailState.status === "success" && emailState !== dismissedEmailState
+      ? "otp"
+      : "email";
+  const message = step === "otp" ? otpState.message : emailState.message;
 
   function handleBack() {
-    // TODO(logic): connect back / change email here
-    onBack?.();
-    setStep("email");
+    setCode("");
+    setDismissedEmailState(emailState);
   }
 
   function handleResend() {
-    // TODO(logic): connect resend code here
+    // TODO(logic): resend the code to the stored email
     onResend?.();
   }
 
-  function handleGithubSignIn() {
-    // TODO(logic): connect GitHub sign-in here
-    onGithubSignIn?.();
+  function handleGoogleSignIn() {
+    // TODO(logic): connect Google sign-in here
+    onGoogleSignIn?.();
   }
 
   return (
@@ -69,21 +67,30 @@ export default function AuthFlow({
       </Link>
 
       <AuthCard>
+        {message ? (
+          <div className="mb-4">
+            <FormError>{message}</FormError>
+          </div>
+        ) : null}
+
         {step === "email" ? (
           <EmailStep
-            onEmailSubmit={handleEmailSubmit}
-            onGithubSignIn={handleGithubSignIn}
-            isLoading={isLoading}
-            errorMessage={errorMessage}
+            action={submitEmail}
+            state={emailState}
+            isPending={isEmailPending}
+            onGoogleSignIn={handleGoogleSignIn}
             signupHref={signupHref}
           />
         ) : (
           <OtpStep
-            onOtpSubmit={handleOtpSubmit}
+            action={submitOtp}
+            state={otpState}
+            isPending={isOtpPending}
+            value={code}
+            onChange={setCode}
             onBack={handleBack}
             onResend={handleResend}
-            isLoading={isLoading}
-            errorMessage={errorMessage}
+            email={emailState.values?.email}
           />
         )}
       </AuthCard>

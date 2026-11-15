@@ -1,33 +1,75 @@
 "use client";
 
-import type { FormEvent } from "react";
-import Link from "next/link";
+import { useRef, useState } from "react";
+import type { ChangeEvent, FocusEvent, FormEvent } from "react";
 import { Button } from "@/src/components/common/Button";
-import FormField from "@/src/components/auth/form-field";
+import Input from "@/src/components/common/input";
 import Divider from "@/src/components/auth/divider";
 import GoogleButton from "@/src/components/auth/google-button";
-
+import {
+  emailSchema,
+  getFirstError,
+} from "@/src/lib/validations/auth.schema";
+import type { EmailFormValues } from "@/src/lib/validations/auth.schema";
+import type { AuthFormState } from "@/src/lib/types/auth.types";
 
 type EmailStepProps = {
-  onEmailSubmit: (email: string) => void;
-  onGithubSignIn: () => void;
-  isLoading: boolean;
-  errorMessage?: string;
+  action: (formData: FormData) => void;
+  state: AuthFormState;
+  isPending: boolean;
+  onGoogleSignIn: () => void;
   signupHref: string;
 };
 
+function validateEmail(email: string): string | undefined {
+  const values: EmailFormValues = { email };
+  return getFirstError(emailSchema, values, "email");
+}
+
 export default function EmailStep({
-  onEmailSubmit,
-  onGithubSignIn,
-  isLoading,
-  errorMessage,
+  action,
+  state,
+  isPending,
+  onGoogleSignIn,
   signupHref,
 }: EmailStepProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [clientError, setClientError] = useState<string>();
+  // Holds the server result the user has already moved on from, so an old
+  // server error never reappears after an edit.
+  const [dismissedErrorState, setDismissedErrorState] =
+    useState<AuthFormState | null>(null);
+
+  const serverError =
+    state.status === "error" && state !== dismissedErrorState
+      ? state.fieldErrors?.email?.[0]
+      : undefined;
+  const error = clientError ?? serverError;
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
-    onEmailSubmit(email);
+    const email = inputRef.current?.value ?? "";
+    const validationError = validateEmail(email);
+
+    if (validationError) {
+      // Blocking the submit keeps the Server Action from being called at all.
+      event.preventDefault();
+      setClientError(validationError);
+      inputRef.current?.focus();
+      return;
+    }
+
+    setClientError(undefined);
+  }
+
+  function handleBlur(event: FocusEvent<HTMLInputElement>) {
+    setDismissedErrorState(state);
+    setClientError(validateEmail(event.currentTarget.value));
+  }
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setDismissedErrorState(state);
+    // Re-check only once an error is visible, so a first attempt never flickers.
+    if (clientError) setClientError(validateEmail(event.currentTarget.value));
   }
 
   return (
@@ -41,8 +83,14 @@ export default function EmailStep({
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:gap-5">
-        <FormField
+      <form
+        action={action}
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4 md:gap-5"
+      >
+        <Input
+          ref={inputRef}
           id="email"
           name="email"
           type="email"
@@ -51,13 +99,17 @@ export default function EmailStep({
           autoComplete="email"
           inputMode="email"
           dir="ltr"
-          error={errorMessage}
+          defaultValue={state.values?.email}
+          disabled={isPending}
+          error={error}
+          onBlur={handleBlur}
+          onChange={handleChange}
         />
         <Button
           type="submit"
           size="md"
           fullWidth
-          loading={isLoading}
+          loading={isPending}
           className="mt-1"
         >
           ورود به حساب
@@ -66,7 +118,7 @@ export default function EmailStep({
 
       <Divider />
 
-      <GoogleButton onClick={onGithubSignIn} />
+      <GoogleButton onClick={onGoogleSignIn} />
     </>
   );
 }
