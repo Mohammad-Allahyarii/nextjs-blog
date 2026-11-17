@@ -1,11 +1,11 @@
 import { Button } from "@/src/components/common/Button";
 import GoogleIcon from "@/src/components/icons/google-icon";
 
-type GithubButtonProps = {
+type GoogleButtonProps = {
   onClick: () => void;
 };
 
-export default function GoogleButton({ onClick }: GithubButtonProps) {
+export default function GoogleButton({ onClick }: GoogleButtonProps) {
   return (
     <Button variant="outline" size="md" fullWidth onClick={onClick}>
       <GoogleIcon />
