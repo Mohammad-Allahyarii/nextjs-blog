@@ -1,9 +1,13 @@
 import { Suspense } from "react";
 import { BLOG_NAME } from "@/src/lib/constants/initial.constants";
-import { getCurrentUser, getSession, requireUser } from "@/src/lib/dal";
+import { getCurrentUser, requireUser } from "@/src/lib/dal";
 import { adminOrUserRole } from "@/src/lib/utils/user.utils";
 import NavList from "@/src/components/dashboard/layout/nav-list";
 import UserCard from "@/src/components/dashboard/layout/user-card";
+
+// The session read below cannot be part of a static shell, so this segment
+// keeps blocking on the server instead of opting into instant navigation.
+export const instant = false;
 
 async function NavListWithRole() {
   const userRole = await adminOrUserRole();
@@ -12,14 +16,13 @@ async function NavListWithRole() {
 
 async function UserCardWithUser() {
   const user = await getCurrentUser();
-  console.log("user", user);
   if (!user) return <h1>login reqiered</h1>;
 
   return <UserCard user={user} />;
 }
 
 const Dashboard = async ({ children }: LayoutProps<"/dashboard">) => {
-  // await requireUser();
+  await requireUser();
 
   return (
     <div className="grid grid-cols-5 w-full min-h-dvh bg-background">
