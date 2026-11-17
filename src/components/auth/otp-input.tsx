@@ -17,7 +17,7 @@ type OtpInputProps = {
   onChange: (value: string) => void;
   onComplete?: (value: string) => void;
   label: string;
-  length?: number;
+  length: number;
   disabled?: boolean;
   hasError?: boolean;
 };
@@ -29,7 +29,7 @@ export default function OtpInput({
   onChange,
   onComplete,
   label,
-  length = 5,
+  length,
   disabled = false,
   hasError = false,
 }: OtpInputProps) {
