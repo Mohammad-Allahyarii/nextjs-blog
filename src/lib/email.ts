@@ -15,36 +15,36 @@ const subjects: Record<OtpType, string> = {
 };
 
 export async function sendOtpEmail(email: string, otp: string, type: OtpType) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const NODE_ENV = process.env.NODE_ENV || "development";
+  // In development auth.ts prints the code to the terminal, so no email is
+  // sent. The code is never logged here, otherwise it would end up in
+  // production logs.
+  if (process.env.NODE_ENV === "development") return;
 
-  if (!apiKey) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("RESEND_API_KEY is not set");
-    }
-    console.warn(
-      "[DEV] RESEND_API_KEY تنظیم نشده؛ ایمیل ارسال نشد (کد در لاگ بالا است)",
-    );
-    return;
+  const apiKey = process.env.RESEND_API_KEY;
+  // Must be an address on a domain verified in Resend,
+  // e.g. "Blog <noreply@yourdomain.com>". The onboarding@resend.dev sender
+  // only delivers to your own Resend account email.
+  const from = process.env.EMAIL_FROM;
+
+  if (!apiKey || !from) {
+    throw new Error("RESEND_API_KEY and EMAIL_FROM must be set");
   }
 
-  console.log("OTP", otp);
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
+    from,
+    to: email,
+    subject: subjects[type],
+    text: `کد شما: ${otp}\nاین کد تا ۵ دقیقه معتبر است.`,
+    html: `
+      <div dir="rtl" style="font-family: Tahoma, sans-serif">
+        <p>کد شما:</p>
+        <p style="font-size:24px;font-weight:bold;letter-spacing:4px">${otp}</p>
+        <p>این کد تا ۵ دقیقه معتبر است. اگر شما درخواست نداده‌اید، این ایمیل را نادیده بگیرید.</p>
+      </div>`,
+  });
 
-  if (NODE_ENV !== "development") {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: "Blog <onboarding@resend.dev>", 
-      to: email,
-      subject: subjects[type],
-      html: `
-        <div dir="rtl" style="font-family: Tahoma, sans-serif">
-          <p>کد شما:</p>
-          <p style="font-size:24px;font-weight:bold;letter-spacing:4px">${otp}</p>
-          <p>این کد تا ۵ دقیقه معتبر است. اگر شما درخواست نداده‌اید، این ایمیل را نادیده بگیرید.</p>
-        </div>`,
-    });
-    if (error) {
-      throw new Error(`Resend error: ${error.message}`);
-    }
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
   }
 }
