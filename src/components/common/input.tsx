@@ -21,7 +21,8 @@ export type InputProps = NativeInputProps & {
 };
 
 const sizeStyles: Record<InputSize, string> = {
-  sm: "h-9 text-body-sm",
+  // 16px on mobile so iOS does not zoom the page on focus.
+  sm: "h-9 text-body-md md:text-body-sm",
   md: "h-11 text-body-md",
   lg: "h-12 text-body-md",
 };
