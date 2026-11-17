@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { BLOG_NAME } from "@/src/lib/constants/initial.constants";
 import { initialAuthFormState } from "@/src/lib/types/auth.types";
@@ -10,13 +10,13 @@ import AuthCard from "@/src/components/auth/auth-card";
 import EmailStep from "@/src/components/auth/email-step";
 import OtpStep from "@/src/components/auth/otp-step";
 import FormError from "@/src/components/common/form-error";
+import { useRouter } from "next/navigation";
 
 type AuthFlowProps = {
   onGoogleSignIn?: () => void;
   onResend?: () => void;
 };
 
-export default function AuthFlow({
 export default function AuthFlow({ onGoogleSignIn, onResend }: AuthFlowProps) {
   const [emailState, submitEmail, isEmailPending] = useActionState(
     requestOtpAction,
@@ -31,6 +31,15 @@ export default function AuthFlow({ onGoogleSignIn, onResend }: AuthFlowProps) {
   // so no effect is needed to move between steps.
   const [dismissedEmailState, setDismissedEmailState] =
     useState<AuthFormState | null>(null);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (otpState.status === "success") {
+      router.push("/dashboard");
+      router.refresh();
+    }
+  }, [otpState.status, router]);
 
   const step: AuthStep =
     emailState.status === "success" && emailState !== dismissedEmailState

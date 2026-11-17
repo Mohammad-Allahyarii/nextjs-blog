@@ -45,6 +45,8 @@ export default function OtpStep({
   length = OTP_LENGTH,
 }: OtpStepProps) {
   const boxesRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const codeInputRef = useRef<HTMLInputElement>(null);
   const [clientError, setClientError] = useState<string>();
   // Holds the server result the user has already moved on from, so an old
   // server error never reappears after an edit.
@@ -59,7 +61,13 @@ export default function OtpStep({
   const errorId = "otp-error";
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    const validationError = validateCode(value);
+    // Validate what is actually inside the form, not the `value` prop: on
+    // paste, onComplete fires before the parent state has re-rendered, so the
+    // prop is still stale (empty) at this point.
+    const submittedCode = String(
+      new FormData(event.currentTarget).get("code") ?? "",
+    );
+    const validationError = validateCode(submittedCode);
 
     if (validationError) {
       event.preventDefault();
@@ -79,8 +87,17 @@ export default function OtpStep({
   }
 
   function handleComplete(completedCode: string) {
+    // Avoid a double submit while a request is already running.
+    if (isPending) return;
+
     // TODO(logic): decide here if the code should be submitted automatically
     onComplete?.(completedCode);
+
+    // The hidden input still holds the old value until React re-renders, so
+    // write the completed code into it before submitting the form.
+    if (codeInputRef.current) codeInputRef.current.value = completedCode;
+
+    formRef.current?.requestSubmit();
   }
 
   return (
@@ -97,15 +114,20 @@ export default function OtpStep({
       </header>
 
       <form
+        ref={formRef}
         action={action}
         onSubmit={handleSubmit}
         noValidate
         className="flex flex-col gap-4 md:gap-5"
       >
-        <input type="hidden" name="code" value={value} />
+        <input ref={codeInputRef} type="hidden" name="code" value={value} />
+        <input type="hidden" name="email" value={email ?? ""} />
 
         <div ref={boxesRef} className="flex flex-col gap-1.5 text-start">
-          <span id="otp-label" className="text-body-sm font-medium text-foreground">
+          <span
+            id="otp-label"
+            className="text-body-sm font-medium text-foreground"
+          >
             کد یکبارمصرف
           </span>
           <div
@@ -141,7 +163,10 @@ export default function OtpStep({
         <Button variant="ghost" size="sm" onClick={onBack}>
           تغییر نشانی ایمیل
         </Button>
-        <span aria-hidden="true" className="size-1 rounded-chip bg-border-strong" />
+        <span
+          aria-hidden="true"
+          className="size-1 rounded-chip bg-border-strong"
+        />
         <Button variant="ghost" size="sm" onClick={onResend}>
           ارسال دوباره کد
         </Button>
