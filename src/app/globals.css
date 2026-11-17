@@ -358,10 +358,21 @@
   }
 }
 
-/* Error state: red border + soft red ring */
-@utility focus-ring-error {
-  border-color: var(--danger);
+/* Keep focus-ring-soft and focus-ring-error structurally identical: same
+   trigger, same outline width/offset. Only the color tokens may differ. */
+@utility focus-ring-soft {
   &:focus-visible {
+    border-color: var(--primary);
+    outline: 2px solid var(--primary-soft);
+    outline-offset: 2px;
+  }
+}
+
+/* Keep focus-ring-error and focus-ring-soft structurally identical: same
+   trigger, same outline width/offset. Only the color tokens may differ. */
+@utility focus-ring-error {
+  &:focus-visible {
+    border-color: var(--danger);
     outline: 2px solid var(--danger-soft);
     outline-offset: 2px;
   }
