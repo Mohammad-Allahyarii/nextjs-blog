@@ -160,7 +160,9 @@ export default function OtpInput({
           onFocus={(event) => event.currentTarget.select()}
           className={cn(
             "h-12 min-w-0 flex-1 basis-0 max-w-14 rounded-control border bg-surface text-center text-headline-md text-foreground transition-shadow motion-fast disabled:opacity-50",
-            hasError ? "focus-ring-error" : "border-border focus-ring",
+            hasError
+              ? "border-danger focus-ring-error"
+              : "border-border focus-ring-soft",
           )}
         />
       ))}

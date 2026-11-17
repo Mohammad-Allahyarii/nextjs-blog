@@ -59,10 +59,15 @@ export default function Input({
     dir ?? (type && LTR_INPUT_TYPES.includes(type) ? "ltr" : undefined);
 
   const borderStyles = error
-    ? "border-danger hover:border-danger"
+    ? "border-danger"
     : variant === "filled"
-      ? "border-transparent hover:border-border-strong"
-      : "border-border hover:border-border-strong";
+      ? "border-transparent"
+      : "border-border";
+
+  // Hover must not repaint the border the focus utilities set.
+  const hoverBorderStyles = error
+    ? "hover:not-focus-visible:border-danger"
+    : "hover:not-focus-visible:border-border-strong";
 
   // Padding only grows when an adornment actually occupies that side.
   const paddingStyles = cn(
@@ -106,7 +111,8 @@ export default function Input({
             sizeStyles[size],
             backgroundStyles[variant],
             borderStyles,
-            error ? "focus-ring-error" : "focus-ring",
+            hoverBorderStyles,
+            error ? "focus-ring-error" : "focus-ring-soft",
             paddingStyles,
           )}
           {...inputProps}
