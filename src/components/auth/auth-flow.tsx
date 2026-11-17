@@ -14,14 +14,10 @@ import FormError from "@/src/components/common/form-error";
 type AuthFlowProps = {
   onGoogleSignIn?: () => void;
   onResend?: () => void;
-  signupHref?: string;
 };
 
 export default function AuthFlow({
-  onGoogleSignIn,
-  onResend,
-  signupHref = "/signup",
-}: AuthFlowProps) {
+export default function AuthFlow({ onGoogleSignIn, onResend }: AuthFlowProps) {
   const [emailState, submitEmail, isEmailPending] = useActionState(
     requestOtpAction,
     initialAuthFormState,
@@ -79,7 +75,6 @@ export default function AuthFlow({
             state={emailState}
             isPending={isEmailPending}
             onGoogleSignIn={handleGoogleSignIn}
-            signupHref={signupHref}
           />
         ) : (
           <OtpStep

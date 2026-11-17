@@ -18,7 +18,6 @@ type EmailStepProps = {
   state: AuthFormState;
   isPending: boolean;
   onGoogleSignIn: () => void;
-  signupHref: string;
 };
 
 function validateEmail(email: string): string | undefined {
@@ -31,7 +30,6 @@ export default function EmailStep({
   state,
   isPending,
   onGoogleSignIn,
-  signupHref,
 }: EmailStepProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [clientError, setClientError] = useState<string>();
