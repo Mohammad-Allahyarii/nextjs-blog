@@ -9,7 +9,7 @@ import { requestOtpAction, verifyOtpAction } from "@/src/app/auth/actions";
 import AuthCard from "@/src/components/auth/auth-card";
 import EmailStep from "@/src/components/auth/email-step";
 import OtpStep from "@/src/components/auth/otp-step";
-import FormError from "@/src/components/auth/form-error";
+import FormError from "@/src/components/common/form-error";
 
 type AuthFlowProps = {
   onGoogleSignIn?: () => void;

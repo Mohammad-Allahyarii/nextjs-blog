@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/src/components/common/Button";
 import OtpInput from "@/src/components/auth/otp-input";
-import FormError from "@/src/components/auth/form-error";
+import FormError from "@/src/components/common/form-error";
 import { toPersianDigits } from "@/src/lib/utils/digits.utils";
 import {
   OTP_LENGTH,

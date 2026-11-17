@@ -1,7 +1,7 @@
 import { useId } from "react";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/src/lib/utils/ui.utils";
-import FormError from "@/src/components/auth/form-error";
+import FormError from "@/src/components/common/form-error";
 
 export type InputVariant = "outline" | "filled";
 export type InputSize = "sm" | "md" | "lg";
