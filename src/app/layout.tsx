@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import DevNavbar from "@/src/components/dev/dev-navbar";
 
 const vazirmatn = Vazirmatn({
   subsets: ["arabic"],
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <DevNavbar />
         </ThemeProvider>
       </body>
     </html>
