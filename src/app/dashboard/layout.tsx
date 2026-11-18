@@ -1,7 +1,11 @@
 import { Suspense } from "react";
 import { BLOG_NAME } from "@/src/lib/constants/initial.constants";
-import { getCurrentUser, requireUser } from "@/src/lib/dal";
-import { adminOrUserRole } from "@/src/lib/utils/user.utils";
+import {
+  navGroups,
+  type NavGroup,
+} from "@/src/lib/constants/dashboard.constants";
+import { getCurrentUser, hasPermission, requireUser } from "@/src/lib/dal";
+import type { PermissionInput } from "@/src/lib/permissions";
 import NavList from "@/src/components/dashboard/layout/nav-list";
 import UserCard from "@/src/components/dashboard/layout/user-card";
 
@@ -9,14 +13,58 @@ import UserCard from "@/src/components/dashboard/layout/user-card";
 // keeps blocking on the server instead of opting into instant navigation.
 export const instant = false;
 
-async function NavListWithRole() {
-  const userRole = await adminOrUserRole();
-  return <NavList role={userRole} />;
+// Identical permissions share one check, and key order never changes the key.
+function permissionKey(permission: PermissionInput): string {
+  return Object.entries(permission)
+    .map(
+      ([resource, actions]) =>
+        `${resource}:${[...(actions ?? [])].sort().join(",")}`,
+    )
+    .sort()
+    .join("|");
+}
+
+async function getVisibleNavGroups(): Promise<NavGroup[]> {
+  const requirements = new Map<string, PermissionInput>();
+
+  for (const group of navGroups) {
+    if (group.permission) {
+      requirements.set(permissionKey(group.permission), group.permission);
+    }
+    for (const item of group.items) {
+      if (item.permission) {
+        requirements.set(permissionKey(item.permission), item.permission);
+      }
+    }
+  }
+
+  const entries = [...requirements.entries()];
+  const results = await Promise.all(
+    entries.map(([, permission]) => hasPermission(permission)),
+  );
+  const allowed = new Set(
+    entries.filter((_, index) => results[index]).map(([key]) => key),
+  );
+
+  const canSee = (permission?: PermissionInput) =>
+    !permission || allowed.has(permissionKey(permission));
+
+  return navGroups
+    .filter((group) => canSee(group.permission))
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => canSee(item.permission)),
+    }))
+    .filter((group) => group.items.length > 0);
+}
+
+async function NavListWithPermissions() {
+  return <NavList groups={await getVisibleNavGroups()} />;
 }
 
 async function UserCardWithUser() {
   const user = await getCurrentUser();
-  if (!user) return <h1>login reqiered</h1>;
+  if (!user) return null;
 
   return <UserCard user={user} />;
 }
@@ -35,7 +83,7 @@ const Dashboard = async ({ children }: LayoutProps<"/dashboard">) => {
             </p>
           </div>
           <Suspense fallback={<div>در حال بارگذاری منو...</div>}>
-            <NavListWithRole />
+            <NavListWithPermissions />
           </Suspense>
         </div>
         <div className="border-t border-border pt-4">

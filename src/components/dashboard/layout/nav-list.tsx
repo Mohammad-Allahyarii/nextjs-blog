@@ -1,13 +1,8 @@
-import { navGroups } from "@/src/lib/constants/dashboard.constants";
-import { Role } from "@/src/lib/dal";
+import type { NavGroup } from "@/src/lib/constants/dashboard.constants";
 import NavLink from "./nav-link";
 import { cn } from "@/src/lib/utils/ui.utils";
 
-export default function NavList({ role }: { role: Role }) {
-  const groups = navGroups.filter(
-    (group) => !group.adminOnly || role.toLocaleLowerCase() === "admin",
-  );
-
+export default function NavList({ groups }: { groups: NavGroup[] }) {
   return (
     <nav aria-label="منوی داشبورد" className="flex flex-col">
       {groups.map((group, index) => (

@@ -1,7 +1,13 @@
-import { NavItem } from "@/src/lib/types/dashboardUi.types";
+import type { PermissionInput } from "@/src/lib/permissions";
+import type { NavItem } from "@/src/lib/types/dashboardUi.types";
 
 
-export type NavGroup = { label: string; adminOnly?: boolean; items: NavItem[] }
+export type NavGroup = {
+  label: string;
+  /** Missing means every signed-in user may see the group. */
+  permission?: PermissionInput;
+  items: NavItem[];
+}
 /* Single source for the sidebar and the mobile drawer. Routes are placeholders. */
 export const navGroups: NavGroup[] = [
   {
@@ -15,12 +21,12 @@ export const navGroups: NavGroup[] = [
   },
   {
     label: 'مدیریت کلان',
-    adminOnly: true,
+    permission: { adminPanel: ['access'] },
     items: [
       { label: 'همه‌ی پست‌ها', href: '/dashboard/admin/posts', icon: 'library_books' },
       { label: 'مدیریت نظرات', href: '/dashboard/admin/comments', icon: 'rule' },
       { label: 'کیوریتوریال', href: '/dashboard/admin/curation', icon: 'auto_stories' },
-      { label: 'لیست کاربران', href: '/dashboard/admin/users', icon: 'auto_stories' },
+      { label: 'لیست کاربران', href: '/dashboard/admin/users', icon: 'auto_stories', permission: { user: ['list'] } },
     ],
   },
 ]
