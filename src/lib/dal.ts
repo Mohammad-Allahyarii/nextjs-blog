@@ -87,6 +87,21 @@ export async function requireUser() {
   return session.user;
 }
 
+// True when the user has both first and last name. Same condition requireUser() uses.
+export function hasCompleteName(user: {
+  firstName?: string | null;
+  lastName?: string | null;
+}): boolean {
+  return Boolean(user.firstName && user.lastName);
+}
+
+// Redirects to /auth when there is no session, otherwise returns the session.
+export async function requireSession() {
+  const session = await getSession();
+  if (!session) redirect("/auth");
+  return session;
+}
+
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const session = await getSession();
   if (!session) return null;
