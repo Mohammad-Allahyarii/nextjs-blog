@@ -1,8 +1,12 @@
+import StatusPage from "@/src/components/common/status-page";
 
-const notFound = () => {
+export default function NotFound() {
   return (
-    <div>صفحه ای که به دنبال آن بودید پیدا نشد.</div>
-  )
+    <StatusPage
+      code="خطای ۴۰۴"
+      title="صفحه‌ای که به دنبال آن بودید پیدا نشد."
+      description="ممکن است نشانی را اشتباه وارد کرده باشید یا این صفحه جابه‌جا شده باشد."
+      action={{ href: "/", label: "بازگشت به صفحه‌ی اصلی" }}
+    />
+  );
 }
-
-export default notFound
