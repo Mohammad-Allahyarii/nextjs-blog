@@ -23,8 +23,6 @@ export async function requestOtpAction(
     };
   }
 
-  // TODO(logic): send the OTP to the email here
-
   try {
     await auth.api.sendVerificationOTP({
       body: {
@@ -32,8 +30,8 @@ export async function requestOtpAction(
         type: "sign-in",
       },
     });
-  } catch (error) {
-    console.log(result.data.email);
+  } catch {
+    console.error("requestOtpAction failed");
     return {
       status: "error",
       message: "ارسال کد تایید ناموفق بود.",
@@ -53,21 +51,27 @@ export async function verifyOtpAction(
   const rawEmail = formData.get("email");
   const code = typeof rawCode === "string" ? rawCode : "";
   const email = typeof rawEmail === "string" ? rawEmail : "";
-  const result = otpSchema.safeParse({ code });
 
-  if (!result.success) {
+  const emailResult = emailSchema.safeParse({ email });
+  const codeResult = otpSchema.safeParse({ code });
+
+  if (!emailResult.success || !codeResult.success) {
     return {
       status: "error",
-      fieldErrors: z.flattenError(result.error).fieldErrors,
+      fieldErrors: {
+        ...(emailResult.success
+          ? {}
+          : z.flattenError(emailResult.error).fieldErrors),
+        ...(codeResult.success ? {} : z.flattenError(codeResult.error).fieldErrors),
+      },
     };
   }
 
-  // TODO(logic): verify the OTP and create the session here
   try {
     await auth.api.signInEmailOTP({
       body: {
-        email: email.trim().toLowerCase(),
-        otp: code.trim(),
+        email: emailResult.data.email.toLocaleLowerCase(),
+        otp: codeResult.data.code,
       },
     });
   } catch (error) {
