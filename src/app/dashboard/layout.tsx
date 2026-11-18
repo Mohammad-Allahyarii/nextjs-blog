@@ -45,12 +45,12 @@ const Dashboard = async ({ children }: LayoutProps<"/dashboard">) => {
         </div>
       </aside>
       <main className="col-span-4">
-        <nav className="bg-blue-500">
+        <nav className="bg-surface-muted">
           <p className="text-muted-foreground bg-surface max-w-max">
             پیش نویس خودکار فعال است.
           </p>
         </nav>
-        <section className="bg-red-600 ">{children}</section>
+        <section className="bg-background">{children}</section>
       </main>
     </div>
   );
