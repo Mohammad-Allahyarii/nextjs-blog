@@ -11,6 +11,7 @@ import EmailStep from "@/src/components/auth/email-step";
 import OtpStep from "@/src/components/auth/otp-step";
 import FormError from "@/src/components/common/form-error";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/src/lib/auth-client";
 
 type AuthFlowProps = {
   onGoogleSignIn?: () => void;
@@ -57,8 +58,18 @@ export default function AuthFlow({ onGoogleSignIn, onResend }: AuthFlowProps) {
     onResend?.();
   }
 
-  function handleGoogleSignIn() {
+  async function handleGoogleSignIn() {
     // TODO(logic): connect Google sign-in here
+
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+      newUserCallbackURL: "/dashboard",
+    });
+    if (error) {
+      console.error("google Error", error);
+    }
+
     onGoogleSignIn?.();
   }
 
