@@ -8,6 +8,12 @@ import { sendOtpEmail } from "@/src/lib/email";
 import { db } from "@/src/lib/db";
 import { ac, roles } from "@/src/lib/permissions";
 
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+if (!googleClientId) throw new Error("GOOGLE_CLIENT_ID is not set");
+if (!googleClientSecret) throw new Error("GOOGLE_CLIENT_SECRET is not set");
+
 export const auth = betterAuth({
   database: prismaAdapter(db, { provider: "postgresql" }),
 
@@ -29,8 +35,8 @@ export const auth = betterAuth({
 
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
       mapProfileToUser: (profile) => ({
         firstName: profile.given_name,
         lastName: profile.family_name,
