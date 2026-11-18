@@ -1,4 +1,4 @@
-import { Role } from "@/src/lib/dal";
+import type { Role } from "@/src/lib/permissions";
 
 export const roleLabels: Record<Role, string> = {
   user: 'نویسنده',

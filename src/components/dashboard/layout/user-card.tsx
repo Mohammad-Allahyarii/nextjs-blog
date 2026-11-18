@@ -1,27 +1,23 @@
 "use client";
 import IconButton from '@/src/components/dashboard/layout/icon-button';
 import { authClient } from '@/src/lib/auth-client';
-import { Role } from '@/src/lib/dal';
+import type { Role } from '@/src/lib/permissions';
 import { roleLabels } from '@/src/lib/types/user.types'
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 export type ShellUser = { name: string; role: Role }
 
 export default function UserCard({ user }: { user: ShellUser }) {
 
   const router = useRouter();
-  const [pending, setPending] = useState(false);
 
   async function handleLogout() {
-    setPending(true);
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
           router.push("/auth");
           router.refresh();
         },
-        onError: () => setPending(false),
       },
     });
   }

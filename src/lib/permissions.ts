@@ -38,6 +38,14 @@ export const statement = {
 
 export const ac = createAccessControl(statement);
 
+// Permissions are derived from the statement, so a typo in a resource or an
+// action name is a type error instead of a silent "denied".
+export type PermissionInput = {
+  [Resource in keyof typeof statement]?: Array<
+    (typeof statement)[Resource][number]
+  >;
+};
+
 // Every role passed to the admin plugin REPLACES the plugin's built-in
 // definition of that role, and roles do not inherit from each other.
 // So each role below lists everything it can do, including the basics.

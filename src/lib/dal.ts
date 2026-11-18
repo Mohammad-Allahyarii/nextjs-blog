@@ -3,10 +3,7 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "./auth";
-import { ROLES, type Role } from "./permissions";
-import type { statement } from "./permissions";
-
-export type { Role };
+import { ROLES, type PermissionInput, type Role } from "./permissions";
 
 export type CurrentUser = {
   id: string;
@@ -14,14 +11,6 @@ export type CurrentUser = {
   email: string;
   image: string | null;
   role: Role;
-};
-
-// Permissions are derived from the statement in permissions.ts, so a typo in a
-// resource or an action name is a type error instead of a silent "denied".
-type Statements = typeof statement;
-
-export type PermissionInput = {
-  [Resource in keyof Statements]?: Array<Statements[Resource][number]>;
 };
 
 const KNOWN_ROLES = new Set<string>(ROLES);
