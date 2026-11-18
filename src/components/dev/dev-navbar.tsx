@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useEffect, useState, type ComponentType, type SVGProps } from "react";
+import { useSyncExternalStore, type ComponentType, type SVGProps } from "react";
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                     */
@@ -44,6 +44,20 @@ const DEFAULT_LINKS: NavbarLink[] = [
 type ThemeMode = "light" | "dark" | "system";
 
 const THEME_CYCLE: ThemeMode[] = ["light", "dark", "system"];
+
+// Server and hydration render read false, then React swaps to true on the
+// client, so the theme toggle never needs setState inside an effect.
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function useIsMounted(): boolean {
+  return useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerSnapshot,
+  );
+}
 
 const THEME_META: Record<
   ThemeMode,
@@ -95,9 +109,7 @@ function ThemeIcon({ mode }: { mode: ThemeMode }) {
 
 function ThemeToggleButton() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useIsMounted();
 
   // Before mount, theme is unknown. Render a stable, disabled-looking placeholder.
   const current: ThemeMode = mounted
