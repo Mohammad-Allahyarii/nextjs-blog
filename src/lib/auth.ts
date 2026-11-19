@@ -17,6 +17,28 @@ if (!googleClientSecret) throw new Error("GOOGLE_CLIENT_SECRET is not set");
 export const auth = betterAuth({
   database: prismaAdapter(db, { provider: "postgresql" }),
 
+  // The admin plugin mounts /api/auth/admin/* endpoints that any signed-in
+  // browser could call directly. Every mutation goes through the Server
+  // Actions instead, which enforce the app's own guards. `disabledPaths` only
+  // blocks the HTTP router, not in-process `auth.api.*` calls.
+  disabledPaths: [
+    "/admin/ban-user",
+    "/admin/create-user",
+    "/admin/get-user",
+    "/admin/has-permission",
+    "/admin/impersonate-user",
+    "/admin/list-user-sessions",
+    "/admin/list-users",
+    "/admin/remove-user",
+    "/admin/revoke-user-session",
+    "/admin/revoke-user-sessions",
+    "/admin/set-role",
+    "/admin/set-user-password",
+    "/admin/stop-impersonating",
+    "/admin/unban-user",
+    "/admin/update-user",
+  ],
+
   user: {
     // `role` is NOT declared here: the admin plugin owns that field.
     additionalFields: {
