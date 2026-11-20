@@ -26,7 +26,7 @@ export const navGroups: NavGroup[] = [
       { label: 'همه‌ی پست‌ها', href: '/dashboard/admin/posts', icon: 'library_books' },
       { label: 'مدیریت نظرات', href: '/dashboard/admin/comments', icon: 'rule' },
       { label: 'کیوریتوریال', href: '/dashboard/admin/curation', icon: 'auto_stories' },
-      { label: 'لیست کاربران', href: '/dashboard/admin/users', icon: 'auto_stories', permission: { user: ['list'] } },
+      { label: 'لیست کاربران', href: '/dashboard/admin/users', icon: 'group', permission: { user: ['list'] } },
     ],
   },
 ]

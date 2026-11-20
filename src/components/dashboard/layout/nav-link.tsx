@@ -1,6 +1,7 @@
 "use client";
 
-import { NavItem } from "@/src/lib/types/dashboardUi.types";
+import Icon from "@/src/components/icons/icon";
+import type { NavItem } from "@/src/lib/types/dashboardUi.types";
 import { cn } from "@/src/lib/utils/ui.utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,18 +12,18 @@ type NavLinkProps = Pick<NavItem, "href" | "icon" | "label"> & {
 
 const base = {
   sidebar:
-    "focus-ring flex h-11 items-center gap-2 rounded-control px-4 text-body-md font-medium transition-colors duration-150 ease-out",
+    "focus-ring flex h-11 items-center gap-3 rounded-control px-3 text-body-sm font-medium motion-fast",
   bottom:
-    "focus-ring flex h-12 w-16 flex-col items-center justify-center rounded-control text-label transition-colors duration-150 ease-out",
+    "focus-ring flex h-12 w-16 flex-col items-center justify-center gap-1 rounded-control text-label motion-fast",
 };
 
 const states = {
   sidebar: {
-    active: "bg-primary-soft text-primary-soft-foreground",
+    active: "bg-primary text-on-primary shadow-card",
     idle: "text-muted-foreground hover:bg-surface-muted hover:text-foreground",
   },
   bottom: {
-    active: "text-primary",
+    active: "font-bold text-primary",
     idle: "text-muted-foreground hover:text-foreground",
   },
 };
@@ -45,8 +46,8 @@ export default function NavLink({
         active ? states[variant].active : states[variant].idle,
       )}
     >
-      <span>{icon}</span>
-      <span>{label}</span>
+      <Icon name={icon} className="size-5 shrink-0" />
+      <span className="truncate">{label}</span>
     </Link>
   );
 }

@@ -1,3 +1,4 @@
+import Icon, { type IconName } from "@/src/components/icons/icon";
 import { cn } from "@/src/lib/utils/ui.utils";
 import type { ComponentProps } from "react";
 
@@ -5,7 +6,7 @@ type IconButtonProps = Omit<
   ComponentProps<"button">,
   "children" | "aria-label"
 > & {
-  icon: string;
+  icon: IconName;
   label: string;
   size?: "md" | "lg";
 };
@@ -25,13 +26,13 @@ export default function IconButton({
       type={type}
       aria-label={label}
       className={cn(
-        "focus-ring grid place-items-center rounded-control text-muted-foreground transition-colors duration-150 ease-out hover:bg-surface-muted hover:text-foreground",
+        "focus-ring motion-fast grid place-items-center rounded-control text-muted-foreground hover:bg-surface-muted hover:text-foreground",
         sizes[size],
         className,
       )}
       {...props}
     >
-      <span>{icon}</span>
+      <Icon name={icon} className="size-5" />
     </button>
   );
 }
