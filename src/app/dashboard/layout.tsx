@@ -1,13 +1,21 @@
-import { Suspense } from "react";
-import { BLOG_NAME } from "@/src/lib/constants/initial.constants";
+import { Suspense, cache } from "react";
 import {
   navGroups,
   type NavGroup,
 } from "@/src/lib/constants/dashboard.constants";
 import { getCurrentUser, hasPermission, requireUser } from "@/src/lib/dal";
 import type { PermissionInput } from "@/src/lib/permissions";
+import type { NavItem } from "@/src/lib/types/dashboardUi.types";
 import NavList from "@/src/components/dashboard/layout/nav-list";
 import UserCard from "@/src/components/dashboard/layout/user-card";
+import Sidebar from "@/src/components/dashboard/layout/sidebar";
+import Topbar from "@/src/components/dashboard/layout/topbar";
+import MobileShell from "@/src/components/dashboard/layout/mobile-shell";
+import BottomNav from "@/src/components/dashboard/layout/bottom-nav";
+import SidebarNavSkeleton from "@/src/components/dashboard/layout/sidebar-nav-skeleton";
+import UserCardSkeleton from "@/src/components/dashboard/layout/user-card-skeleton";
+import BottomNavSkeleton from "@/src/components/dashboard/layout/bottom-nav-skeleton";
+import SkipLink from "@/src/components/dashboard/layout/skip-link";
 import { ToastProvider } from "@/src/components/ui/toast";
 
 // The session read below cannot be part of a static shell, so this segment
@@ -25,7 +33,8 @@ function permissionKey(permission: PermissionInput): string {
     .join("|");
 }
 
-async function getVisibleNavGroups(): Promise<NavGroup[]> {
+// Cached so the sidebar, the drawer and the bottom nav share one permission pass.
+const getVisibleNavGroups = cache(async (): Promise<NavGroup[]> => {
   const requirements = new Map<string, PermissionInput>();
 
   for (const group of navGroups) {
@@ -57,10 +66,34 @@ async function getVisibleNavGroups(): Promise<NavGroup[]> {
       items: group.items.filter((item) => canSee(item.permission)),
     }))
     .filter((group) => group.items.length > 0);
+});
+
+// Item order of the mobile bottom bar, mapped by meaning from the design.
+const BOTTOM_NAV_HREFS = [
+  "/dashboard/posts",
+  "/dashboard/posts/new",
+  "/dashboard/comments",
+  "/dashboard/admin/curation",
+];
+
+function pickBottomNavItems(groups: NavGroup[]): NavItem[] {
+  const items = groups.flatMap((group) => group.items);
+
+  return BOTTOM_NAV_HREFS.flatMap((href) =>
+    items.filter((item) => item.href === href),
+  );
 }
 
 async function NavListWithPermissions() {
   return <NavList groups={await getVisibleNavGroups()} />;
+}
+
+async function DrawerNavWithPermissions() {
+  return <NavList groups={await getVisibleNavGroups()} label="منوی موبایل" />;
+}
+
+async function BottomNavWithPermissions() {
+  return <BottomNav items={pickBottomNavItems(await getVisibleNavGroups())} />;
 }
 
 async function UserCardWithUser() {
@@ -71,37 +104,58 @@ async function UserCardWithUser() {
 }
 
 const Dashboard = async ({ children }: LayoutProps<"/dashboard">) => {
-  await requireUser();
+  const user = await requireUser();
 
   return (
     <ToastProvider>
-      <div className="grid grid-cols-5 w-full min-h-dvh bg-background">
-        <aside className="py-4 col-span-1 h-full">
-          <div className="flex flex-col gap-10">
-            <div className="px-2">
-              <p className="text-headline-sm text-foreground">{BLOG_NAME}</p>
-              <p className="mt-1 text-label text-muted-foreground">
-                میز کار ویراستار
-              </p>
-            </div>
-            <Suspense fallback={<div>در حال بارگذاری منو...</div>}>
+      <SkipLink />
+      <div className="min-h-dvh bg-background">
+        <Sidebar
+          nav={
+            <Suspense fallback={<SidebarNavSkeleton />}>
               <NavListWithPermissions />
             </Suspense>
-          </div>
-          <div className="border-t border-border pt-4">
-            <Suspense fallback={<div>در حال بارگذاری کاربر...</div>}>
+          }
+          user={
+            <Suspense fallback={<UserCardSkeleton />}>
               <UserCardWithUser />
             </Suspense>
-          </div>
-        </aside>
-        <main className="col-span-4">
-          <nav className="bg-surface-muted">
-            <p className="text-muted-foreground bg-surface max-w-max">
-              پیش نویس خودکار فعال است.
-            </p>
-          </nav>
-          <section className="bg-background">{children}</section>
-        </main>
+          }
+        />
+
+        <div className="flex min-h-dvh min-w-0 flex-col lg:ps-sidebar">
+          <MobileShell
+            userName={user.name}
+            userImage={user.image ?? null}
+            nav={
+              <Suspense fallback={<SidebarNavSkeleton />}>
+                <DrawerNavWithPermissions />
+              </Suspense>
+            }
+            userCard={
+              <Suspense fallback={<UserCardSkeleton />}>
+                <UserCardWithUser />
+              </Suspense>
+            }
+          />
+
+          <Topbar userName={user.name} userImage={user.image ?? null} />
+
+          {/* Pages already own their own `px-gutter py-section-dashboard`, so the
+              shell only reserves the space the bottom bar needs. */}
+          <main
+            id="main-content"
+            className="flex min-w-0 flex-1 flex-col pb-[calc(env(safe-area-inset-bottom)+6rem)] lg:pb-0"
+          >
+            <div className="mx-auto flex w-full min-w-0 max-w-canvas flex-1 flex-col">
+              {children}
+            </div>
+          </main>
+        </div>
+
+        <Suspense fallback={<BottomNavSkeleton />}>
+          <BottomNavWithPermissions />
+        </Suspense>
       </div>
     </ToastProvider>
   );

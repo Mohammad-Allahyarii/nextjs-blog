@@ -1,11 +1,12 @@
 "use client";
-import IconButton from '@/src/components/dashboard/layout/icon-button';
-import { authClient } from '@/src/lib/auth-client';
-import type { Role } from '@/src/lib/permissions';
-import { roleLabels } from '@/src/lib/types/user.types'
-import { useRouter } from 'next/navigation';
+import Avatar from "@/src/components/ui/avatar";
+import IconButton from "@/src/components/dashboard/layout/icon-button";
+import { authClient } from "@/src/lib/auth-client";
+import type { Role } from "@/src/lib/permissions";
+import { roleLabels } from "@/src/lib/types/user.types"
+import { useRouter } from "next/navigation";
 
-export type ShellUser = { name: string; role: Role }
+export type ShellUser = { name: string; image?: string | null; role: Role }
 
 export default function UserCard({ user }: { user: ShellUser }) {
 
@@ -25,13 +26,12 @@ export default function UserCard({ user }: { user: ShellUser }) {
   return (
     <div className="flex items-center justify-between gap-2 rounded-card p-2">
       <div className="flex min-w-0 items-center gap-2">
-        <span>AV</span>
+        <Avatar name={user.name} src={user.image} size="sm" />
         <div className="flex min-w-0 flex-col">
           <span className="truncate text-body-sm font-medium text-foreground">{user.name}</span>
           <span className="truncate text-label text-muted-foreground">{roleLabels[user.role]}</span>
         </div>
       </div>
-      {/* Wire to a sign-out Server Action later */}
       <IconButton onClick={handleLogout} icon="logout" label="خروج" className="hover:text-danger" />
     </div>
   )
